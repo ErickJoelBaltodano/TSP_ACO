@@ -1,5 +1,5 @@
 import random
-class Solucion:
+class Random_Solution_Generator:
 
     #Método que nos genera una permutación aleatoria desde el 1 hasta el número longitud
     @staticmethod

@@ -21,3 +21,18 @@ class Reader:
             print(f"Ha ocurrido un error: {e}")
 
         return lista
+
+
+    @staticmethod
+    def abrir_solucion(nombre_archivo):
+        arreglo = []
+        with open(nombre_archivo, 'r') as archivo:
+            for linea in archivo:
+                arreglo.append(int(linea.strip()))
+        return arreglo
+
+    @staticmethod
+    def guardar_solucion(arreglo,nombre_archivo):
+        with open(nombre_archivo, 'w') as archivo:
+            for elemento in arreglo:
+                archivo.write(f"{elemento}\n")
