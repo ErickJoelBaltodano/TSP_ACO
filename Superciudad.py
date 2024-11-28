@@ -9,7 +9,10 @@ class Superciudad:
         self.path = [ciudad_base]
         self.tabla_de_distancias = tabla
         self.lista_de_ciudades = lista_de_ciudades
-        self.ciudades = []
+       
         
     
+    @staticmethod 
+    def unir_caminos(lista_de_superciudades):
+        pass
     

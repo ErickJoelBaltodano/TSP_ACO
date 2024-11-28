@@ -3,6 +3,8 @@ from Tabla_de_Distancias import *
 from Ciudad import *
 import time
 from Random_Solution_Generator import *
+from Superciudad import * 
+from Superciudad_Generator import *
 
 
 class TSP:
@@ -93,7 +95,7 @@ class TSP:
     
     # Método donde reiniciamos una tabla de feromonas.
     def clean_table (self):
-        self.tabla_de_Feromonas.clean(self.longitud)
+        self.tabla_de_Feromonas.clean(self.longitud())
     
     
     # Método que dado una colonia de hormigas(lista de hormigas) realiza búsquedas y un tiempo en segundos realiza una búsqueda de soluciones a partir del método generate
@@ -136,6 +138,68 @@ class TSP:
         
         
         return best_paths , shortest_scores
+    
+    
+    # Método donde dado una colonia de hormigas de superciudad realizamos el ACO.
+    def ACO_Superciudad (self, colonia_de_hormigas, tiempo_segundos, timeout, incremento ):
+        best_paths = []
+        best_path = None
+        shortest_score = None
+        shortest_scores = []
+        
+        tiempo_inicial = time.time()
+        tiempo_ultimo_timeout = tiempo_inicial
+        
+        while (time.time() - tiempo_inicial < tiempo_segundos):
+            
+            # Seccionamos el problema en 3 partes
+            ciudades = Superciudad_Generator.generate(6,self.longitud(),self.tabla_de_distancias)
+            y = 0
+            # A cada hormiga le asignamos una sección
+            while y < len(colonia_de_hormigas):
+                colonia_de_hormigas[y].set_seccion(ciudades[y%6].lista_de_ciudades)
+                
+                y +=1
+            
+            
+            x = 0
+            path = []
+            for hormiga in colonia_de_hormigas:
+                # Generamos un camino
+                x +=1
+                p = hormiga.generate_path()
+                path += p
+                hormiga.reset()
+                # Marcamos el camino dado que fue visitado
+                self.tabla_de_Feromonas.marcar_feromona(2,path)
+                
+            # Caso en el que encontramos un nuevo mejor camino
+            if (best_path is None or self.evaluar_recorrido_tsp(path)< shortest_score)and (len(path)== self.longitud()):
+                shortest_score = self.evaluar_recorrido_tsp(path)
+                best_path = path
+                
+                    
+            # Después de cada iteración evaporamos las feromonas y marcamos el mejor camino
+            self.tabla_de_Feromonas.evaporacion()
+            self.tabla_de_Feromonas.marcar_feromona(incremento,best_path)
+
+            # Comprobamos si ha pasado el tiempo especificado para un timeout
+            if (time.time() - tiempo_ultimo_timeout) >= timeout:
+                # Almacenamos el mejor camino y su puntuación
+                if (best_paths != []and best_path == best_paths[-1]):
+                    self.tabla_de_Feromonas.clean(self.longitud())
+                best_paths.append(best_path)
+                shortest_scores.append(shortest_score)
+                
+                
+                # Actualizamos el tiempo del último timeout
+                tiempo_ultimo_timeout = time.time()
+                print ("Mejor Camino: {} \nValor: {}".format(best_path,shortest_score))
+        
+        
+        return best_paths , shortest_scores
+        
+        
         
         
         
