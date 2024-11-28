@@ -11,10 +11,5 @@ class Superciudad:
         self.lista_de_ciudades = lista_de_ciudades
         self.ciudades = []
         
-    # Método donde generamos el camino de nuestra superciudad
-    def generate_path(self):
-        #Generamos el camino interno de cada superciudad
-    
-        return self.path
     
     

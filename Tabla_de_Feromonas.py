@@ -19,8 +19,9 @@ class Tabla_de_Feromonas:
         for i in range(len(camino) - 1):
             v1 = camino[i]
             v2 = camino[i + 1]
-            self.tabla[v1][v2] += incremento
-            self.tabla[v2][v1] += incremento  
+            self.tabla[v1][v2] = min(self.tabla[v1][v2] + incremento, 5)
+            self.tabla[v2][v1] = min(self.tabla[v2][v1] + incremento, 5)  
+            
             
     # Método donde decrementamos la feromona en los caminos que no fueron recorridos.
     def evaporacion(self):

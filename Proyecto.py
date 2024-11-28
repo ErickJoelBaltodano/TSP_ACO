@@ -8,27 +8,23 @@ from Hormiga_Superciudad import *
 from Tabla_de_Distancias import *
 """Leemos un archivo y generamos un problema de TSP"""
 tsp =TSP.read_lines(Reader.read ("Berlin52.txt"))
-for x in tsp.lista_de_ciudades:
-    print (x)
 
+   
 
-    
-tabla_D= Tabla_de_Distancias(tsp.lista_de_ciudades)
-tabla_F= Tabla_de_Feromonas (tsp.longitud())
+"""Generamos la colonia de hormigas normales y generamos caminos"""
+colonia1 =Hormiga.generate_colony(6,tsp.longitud(),tsp.get_Feromonas())
 
-
-tsp.get_tablas(tabla_F,tabla_D)
-
-print (tabla_D == tsp.tabla_de_distancias)
-for x in tabla_F.tabla:
-    print (len(x))
-"""Generamos la colonia de hormigas normales"""
-
-
+print ("Calculando ...")
+paths1,scores1=tsp.ACO(colonia1,30,1,4)
+x = 0 
+while x < len(paths1):
+    print ("Camino: {} Valor: {}".format(paths1[x],scores1[x]))
+    x +=1
 
 
 
 """Limpiamos las Feromonas de nuestro modelo del TSP"""
+#tsp.clean_table()
 
 
 """Generamos la colonia de hormigas con heurística"""

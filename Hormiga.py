@@ -11,8 +11,15 @@ class Hormiga:
         self.dimension = dimension
         self.ciudad_base = random.randint(0, dimension - 1)
     
+    #Método donde generamos una colonia de hormigas.
+    """Nota. Al pasar una misma tabla de feromonas como parámetro, en python los objetos son pasados por referencia, es decir que los cambios que realize una hormiga en dicha tabla, serán visibles para las demás hormigas pues todas ven el mismo objeto."""
+    @staticmethod
+    def generate_colony(numero_de_hormigas:int,dimension:int,feromonas:Tabla_de_Feromonas):
+        colonia = [Hormiga(feromonas,dimension) for _ in range(numero_de_hormigas)]
+        return colonia
+        
     # Método donde generamos un recorrido de la hormiga basado en la tabla de feromonas
-    def generate(self):
+    def generate_path(self):
         resultado = [self.ciudad_base]
         self.ciudades_visitadas[self.ciudad_base] = False
 
@@ -40,3 +47,6 @@ class Hormiga:
                     break
 
         return resultado
+    
+    def reset(self):
+        self.ciudades_visitadas = [True for _ in range(self.dimension)]

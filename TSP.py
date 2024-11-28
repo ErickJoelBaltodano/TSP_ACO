@@ -10,15 +10,20 @@ class TSP:
     def __init__(self, lista_de_ciudades: list[Ciudad]):
         self.lista_de_ciudades = lista_de_ciudades
         #Calculamos nuestras distancias para nuestro problema TSP. O(n²)
-        self.tabla_de_distancias = None
+        self.tabla_de_distancias = Tabla_de_Distancias(self.lista_de_ciudades)
         
         #Inicializamos nuestros valores de la tabla de feromonas. O(n²)
-        self.tabla_de_Feromonas = None
+        self.tabla_de_Feromonas = Tabla_de_Feromonas(self.longitud())
     
-    def get_tablas(self,feromonas:Tabla_de_Feromonas,distancias:Tabla_de_Distancias):
-        self.tabla_de_distancias = distancias
-        self.tabla_de_Feromonas = feromonas
-
+    # Getters
+    def get_Feromonas(self):
+        return self.tabla_de_Feromonas
+    
+    def get_Distancias(self):
+        return self.tabla_de_distancias
+    
+    def get_Ciudades(self):
+        return self.lista_de_ciudades
 
     #Método que nos regresa el núemro de ciudades que tenemos.
     def longitud(self):
@@ -44,23 +49,22 @@ class TSP:
 
     @staticmethod
     def read_lines(lista_de_strings: list[str]):
-        tsp = TSP([])
+        tsp = []
 
         for line in lista_de_strings:
             ciudad = Ciudad.read_line(line)
             tsp.append (ciudad)
-
-        return tsp
+        result = TSP(tsp)
+        return result
             
 
      #Metodo en el que dado el id de una ciudad inicial, recibimos un recorrido de ciudades y regresamos el valor total del recorrido.
     def evaluar_recorrido_tsp(self, solucion):
         resultado = 0
-        print(f"Evaluando recorrido: {solucion}")
         for i in range(len(solucion) - 1):
             distancia = self.distancia_euclidiana(solucion[i], solucion[i + 1])
-            print(f"Distancia de {solucion[i]} a {solucion[i + 1]}: {distancia}")
             resultado += distancia
+            resultado += self.distancia_euclidiana(solucion[0],solucion[-1])
         return resultado
 
     #Método que nos regresa el aristade mayor peso.
@@ -93,34 +97,42 @@ class TSP:
     
     
     # Método que dado una colonia de hormigas(lista de hormigas) realiza búsquedas y un tiempo en segundos realiza una búsqueda de soluciones a partir del método generate
-    def ACO(self,colonia_de_hormigas,tiempo_segundos,incremento):
+    def ACO(self,colonia_de_hormigas,tiempo_segundos,timeout,incremento):
         best_paths = []
         best_path = None
         shortest_score = None
         shortest_scores = []
         
         tiempo_inicial = time.time()
+        tiempo_ultimo_timeout = tiempo_inicial
         
         while (time.time() - tiempo_inicial < tiempo_segundos):
-            
+            x = 0
             for hormiga in colonia_de_hormigas:
-                # Generamos caminos en cada una de las hormigas
-                path = hormiga.generate()
+                # Generamos un camino
+                x +=1
+                path = hormiga.generate_path()
+                hormiga.reset()
+                # Marcamos el camino dado que fue visitado
+                self.tabla_de_Feromonas.marcar_feromona(2,path)
                 
-                # Método donde evaluamos el camino de la hormiga
-                if (shortest_score is None or shortest_score > self.evaluar_recorrido_tsp(path)):
+                # Caso en el que encontramos un nuevo mejor camino
+                if best_path is None or self.evaluar_recorrido_tsp(path)< shortest_score:
                     shortest_score = self.evaluar_recorrido_tsp(path)
-                    shortest_scores.append(shortest_score)
                     best_path = path
-                    best_paths.append(best_path)
-                    
-                # Aumentamos las feromonas del mejor camino.
-                self.tabla_de_Feromonas.marcar_feromona(incremento,best_path)
+            # Después de cada iteración evaporamos las feromonas y marcamos el mejor camino
+            self.tabla_de_Feromonas.evaporacion()
+            self.tabla_de_Feromonas.marcar_feromona(incremento,best_path)
+
+            # Comprobamos si ha pasado el tiempo especificado para un timeout
+            if (time.time() - tiempo_ultimo_timeout) >= timeout:
+                # Almacenamos el mejor camino y su puntuación
+                best_paths.append(best_path)
+                shortest_scores.append(shortest_score)
                 
-                #Evaporación
-                self.tabla_de_Feromonas.evaporacion()
-                
-            
+                # Actualizamos el tiempo del último timeout
+                tiempo_ultimo_timeout = time.time()
+                print ("Mejor Camino: {} \nValor: {}".format(best_path,shortest_score))
         
         
         return best_paths , shortest_scores
